@@ -53,4 +53,8 @@ class Population {
     individuals.set(id, individual);
   }
 
+  int getIndexOf(Individual individual) {
+    return individuals.indexOf(individual);
+  }
+
 }
