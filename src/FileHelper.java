@@ -1,5 +1,8 @@
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,4 +39,29 @@ abstract class FileHelper {
     return new Test(name, faults);
   }
 
+  static void saveRunToFile(final int tournamentSize, final double mutationRate,
+                            final double crossoverRate, final int[] generations) {
+    StringBuilder stringBuilder = new StringBuilder(
+        tournamentSize + "," + mutationRate + "," + crossoverRate);
+
+    for (int generation : generations) {
+      stringBuilder.append(",").append(generation);
+    }
+
+    String line = stringBuilder.toString();
+
+    System.out.println(line);
+
+    FileWriter fileWriter = null;
+    try {
+      fileWriter = new FileWriter("out.txt", true);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    assert fileWriter != null;
+    PrintWriter printWriter = new PrintWriter(fileWriter);
+    printWriter.println(line);
+    printWriter.close();
+
+  }
 }

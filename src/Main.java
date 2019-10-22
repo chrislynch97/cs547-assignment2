@@ -4,15 +4,61 @@ import java.util.Collections;
 public class Main {
 
   private final int populationSize = 100;
-  private final int numberTestsToRun = 5;
-  private final double mutationRate = 0.01;
-  private final int tournamentSize = 4;
-  private final double crossoverRate = 0.5;
-  private final String file = "smallfaultmatrix.txt";
+  private final int numberTestsToRun = 40;    // small 5 big 40
+
+  private int tournamentSize = 5;
+  private double mutationRate = 0.9;
+  private double crossoverRate = 0.9;
+
+  private final String file = "bigfaultmatrix.txt";
 
   public static void main(String[] args) {
     new Main().run();
   }
+
+  // this run method was used to produce out.txt which was used to identify
+  // optimal values for tournamentSize, mutationRate and crossoverRate
+  //  private void run() {
+  //    for (tournamentSize = 2; tournamentSize < 6; tournamentSize++) {
+  //      for (mutationRate = 0.1; mutationRate < 1; mutationRate += 0.1) {
+  //        for (crossoverRate = 0.1; crossoverRate < 1; crossoverRate += 0.1) {
+  //
+  //          int generation = 1;
+  //          int[] generations = new int[10];
+  //
+  //          for (int runs = 1; runs <= 10; runs++) {
+  //            ArrayList<Test> tests = FileHelper.readTestsFromFile(file);
+  //            Population population = new Population(populationSize);
+  //
+  //            do {
+  //              Individual individual = new Individual(randomizeTests(tests), numberTestsToRun);
+  //              population.addIndividual(individual);
+  //            } while (population.size() < populationSize);
+  //
+  //            generation = 1;
+  //
+  //            while (population.getFittest().getFitness() < 1) {
+  //              population = evolve(population);
+  //              generation++;
+  //            }
+  //
+  ////            System.out.println("GA iterations to find solution: " + generation);
+  ////            System.out.println("Fitness: " + population.getFittest().getFitness());
+  ////            System.out.println("Tests to run:");
+  ////            for (int i = 0; i < numberTestsToRun; i++) {
+  ////              System.out.println(population.getFittest().getTest(i));
+  ////            }
+  //
+  //            generations[runs-1] = generation;
+  //
+  //          }
+  //
+  //          FileHelper.saveRunToFile(tournamentSize, mutationRate, crossoverRate, generations);
+  //
+  //        }
+  //      }
+  //    }
+  //  }
 
   private void run() {
     ArrayList<Test> tests = FileHelper.readTestsFromFile(file);
@@ -25,10 +71,15 @@ public class Main {
 
     int generation = 1;
 
-    while (population.getFittest().getFitness() < 1) {
+    final double maxFitness = 0.7631578947368421; // small 1 big 0.7631578947368421
+
+    while (population.getFittest().getFitness() < maxFitness) {
       population = evolve(population);
       generation++;
+
     }
+
+    randomSearch();
 
     System.out.println("GA iterations to find solution: " + generation);
     System.out.println("Fitness: " + population.getFittest().getFitness());
@@ -74,7 +125,7 @@ public class Main {
 
   private Individual[] crossover(Individual i1, Individual i2) {
 
-    if (Math.random() < crossoverRate) {
+    if (Math.random() > crossoverRate) {
       return new Individual[] {i1, i2};
     }
 
@@ -87,64 +138,76 @@ public class Main {
       testList1.add(i1.getTest(i));
       testList2.add(i2.getTest(i));
     }
-//
-//    for (int i = 0; i < i2.size(); i++) {
-//      Test t = i2.getTest(i);
-//      boolean inList = false;
-//      for (Test test : testList1) {
-//        if (test.getName().equals(t.getName())) {
-//          inList = true;
-//          break;
-//        }
-//      }
-//      if (!inList) {
-//        testList1.add(t);
-//      }
-//    }
 
     for (int i = 0; i < i1.size(); i++) {
+
       Test test = i2.getTest(i);
       boolean inList = testList1.contains(test);
       if (!inList) {
         testList1.add(test);
       }
 
-
       test = i1.getTest(i);
       inList = testList2.contains(test);
       if (!inList) {
         testList2.add(test);
       }
-    }
-//
-//    for (int i = 0; i < i1.size(); i++) {
-//      Test t = i1.getTest(i);
-//      boolean inList = false;
-//      for (Test test : testList2) {
-//        if (test.getName().equals(t.getName())) {
-//          inList = true;
-//          break;
-//        }
-//      }
-//      if (!inList) {
-//        testList2.add(t);
-//      }
-//    }
 
+    }
     return new Individual[] {
         new Individual(testList1, numberTestsToRun),
         new Individual(testList2, numberTestsToRun)};
   }
 
   private Individual mutate(Individual individual) {
-    int randomId1 = (int) (Math.random() * individual.size());
-    int randomId2 = (int) (Math.random() * individual.size());
-
-    if (Math.random() < mutationRate) {
+    if (Math.random() <= mutationRate) {
+      int randomId1 = (int) (Math.random() * individual.size());
+      int randomId2 = (int) (Math.random() * individual.size());
       individual.swap(randomId1, randomId2);
     }
 
     return individual;
   }
 
+  private void randomSearch() {
+    ArrayList<Test> tests = FileHelper.readTestsFromFile(file);
+    Population population = new Population(populationSize);
+
+    do {
+      Individual individual = new Individual(randomizeTests(tests), numberTestsToRun);
+      population.addIndividual(individual);
+    } while (population.size() < populationSize);
+
+    Individual individual = population.getIndividual(0);
+
+    ArrayList<Integer> faults = new ArrayList<>();
+    faults.add(1);
+    faults.add(1);
+    faults.add(1);
+    faults.add(1);
+    faults.add(1);
+    faults.add(1);
+    faults.add(1);
+    faults.add(1);
+    faults.add(1);
+
+    Test test = new Test(individual.getTest(0).getName(), faults);
+
+    individual.setTest(0, test);
+
+    population.setIndividual(0, individual);
+
+    int randomId;
+    int counter = 1;
+    Individual randomIndividual;
+
+    do {
+      randomId = (int) (Math.random() * population.size());
+      randomIndividual = population.getIndividual(randomId);
+      counter++;
+
+    } while (randomIndividual.getFitness() < 1);
+
+    System.out.println("Random search iterations to find solution: " + counter);
+  }
 }

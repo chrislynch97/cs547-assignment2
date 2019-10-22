@@ -28,9 +28,9 @@ class Individual {
       }
     }
 
-    int noFaults = Collections.frequency(faults, 1);
+    int numberFaultsDetected = Collections.frequency(faults, 1);
 
-    return (double) noFaults / (double) faults.size();
+    return (double) numberFaultsDetected / (double) faults.size();
   }
 
   int size() {
@@ -39,6 +39,10 @@ class Individual {
 
   Test getTest(int id) {
     return tests.get(id);
+  }
+
+  void setTest(int id, Test test) {
+    tests.set(id, test);
   }
 
   void swap(int i1, int i2) {
