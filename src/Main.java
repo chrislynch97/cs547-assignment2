@@ -18,14 +18,14 @@ import java.util.Collections;
 public class Main {
 
   private final int populationSize = 100;
-  private final int numberTestsToRun = 40;    // small 5 big 40
+  private final int numberTestsToRun = 5;    // small 5 big 40
 
   private int tournamentSize = 5;
   private double mutationRate = 0.9;
   private double crossoverRate = 0.9;
-  private final double maxFitness = 0.7631578947368421; // small 1 big 0.7631578947368421
+  private final double maxFitness = 1; // small 1 big 0.7631578947368421
 
-  private final String file = "bigfaultmatrix.txt";
+  private final String file = "smallfaultmatrix.txt";
 
   public static void main(String[] args) {
     new Main().run();
